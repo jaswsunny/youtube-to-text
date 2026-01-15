@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Hate Video</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='M6 4h4v1H8v14h2v1H6v-1h2V5H6V4zm8 0h4v1h-2v14h2v1h-4v-1h2V5h-2V4z'/><rect fill='%23000' x='11' y='4' width='2' height='16'/></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>I Hate Video</h1>
+            <p>Tired of talks and podcasts being video-only? Mourning the transition to a post-literate society? Use this tool to take any YouTube link and convert it to a readable grammatical transcript, with chapters and top takeaways.</p>
+        </header>
+
+        <form id="transcribe-form">
+            <div class="input-group">
+                <input
+                    type="url"
+                    id="url-input"
+                    placeholder="Paste YouTube URL here..."
+                    required
+                >
+                <button type="submit" id="submit-btn">Textify</button>
+            </div>
+            <p class="disclaimer">Works best for podcasts and talks under 1 hour.</p>
+        </form>
+
+        <div id="progress-container" class="hidden">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <p id="progress-text">Starting...</p>
+        </div>
+
+        <div id="result-container" class="hidden">
+            <div class="result-header">
+                <h2 id="result-title"></h2>
+                <button id="download-btn" class="download-btn">💾 Save .md</button>
+            </div>
+            <div class="viewer-toolbar">
+                <label>Font:
+                    <select id="font-select">
+                        <option value="Times New Roman" selected>Times New Roman</option>
+                        <option value="Tahoma">Tahoma</option>
+                    </select>
+                </label>
+                <div class="zoom-controls">
+                    <button id="zoom-out" class="zoom-btn">−</button>
+                    <span id="zoom-level">100%</span>
+                    <button id="zoom-in" class="zoom-btn">+</button>
+                </div>
+            </div>
+            <div class="ruler">
+                <div class="ruler-marks">
+                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span>
+                </div>
+            </div>
+            <div class="document-area">
+                <div class="vertical-ruler">
+                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+                </div>
+                <div id="markdown-viewer"></div>
+            </div>
+        </div>
+
+        <div id="error-container" class="hidden">
+            <p id="error-text"></p>
+        </div>
+
+        <footer>
+            <p>made with love + hate by <a href="https://jasmi.news" target="_blank">jasmine sun</a></p>
+        </footer>
+    </div>
+
+    <script>
+        const form = document.getElementById('transcribe-form');
+        const urlInput = document.getElementById('url-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const progressContainer = document.getElementById('progress-container');
+        const progressText = document.getElementById('progress-text');
+        const progressFill = document.querySelector('.progress-fill');
+        const resultContainer = document.getElementById('result-container');
+        const resultTitle = document.getElementById('result-title');
+        const markdownViewer = document.getElementById('markdown-viewer');
+        const downloadBtn = document.getElementById('download-btn');
+        const errorContainer = document.getElementById('error-container');
+        const errorText = document.getElementById('error-text');
+
+        let currentJobId = null;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const url = urlInput.value.trim();
+            if (!url) return;
+
+            // Reset UI
+            progressContainer.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            errorContainer.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Textifying...';
+            progressFill.style.width = '10%';
+
+            try {
+                // Start transcription
+                const response = await fetch('/transcribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                currentJobId = data.job_id;
+                pollStatus();
+            } catch (error) {
+                showError(error.message);
+            }
+        });
+
+        async function pollStatus() {
+            try {
+                const response = await fetch(`/status/${currentJobId}`);
+                const data = await response.json();
+
+                if (data.error && data.status !== 'error') {
+                    throw new Error(data.error);
+                }
+
+                progressText.textContent = data.progress;
+
+                // Update progress bar based on step
+                const steps = {
+                    'Starting...': 10,
+                    'Getting video info...': 20,
+                    'Extracting transcript...': 40,
+                    'Cleaning transcript with Gemini...': 60,
+                    'Generating takeaways...': 80
+                };
+                progressFill.style.width = (steps[data.progress] || 50) + '%';
+
+                if (data.status === 'completed') {
+                    progressFill.style.width = '100%';
+                    showResult(data.result);
+                } else if (data.status === 'error') {
+                    throw new Error(data.error);
+                } else {
+                    // Keep polling
+                    setTimeout(pollStatus, 1000);
+                }
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function showResult(result) {
+            progressContainer.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+
+            resultTitle.textContent = result.title;
+            markdownViewer.innerHTML = marked.parse(result.markdown);
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Textify';
+        }
+
+        function showError(message) {
+            progressContainer.classList.add('hidden');
+            errorContainer.classList.remove('hidden');
+            errorText.textContent = `Error: ${message}`;
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Textify';
+        }
+
+        // Font switcher
+        const fontSelect = document.getElementById('font-select');
+        fontSelect.addEventListener('change', () => {
+            markdownViewer.style.fontFamily = fontSelect.value + ', serif';
+        });
+
+        // Zoom controls
+        const zoomIn = document.getElementById('zoom-in');
+        const zoomOut = document.getElementById('zoom-out');
+        const zoomLevel = document.getElementById('zoom-level');
+        let currentZoom = 100;
+
+        function updateZoom() {
+            markdownViewer.style.fontSize = (12 * currentZoom / 100) + 'pt';
+            zoomLevel.textContent = currentZoom + '%';
+        }
+
+        zoomIn.addEventListener('click', () => {
+            if (currentZoom < 200) {
+                currentZoom += 10;
+                updateZoom();
+            }
+        });
+
+        zoomOut.addEventListener('click', () => {
+            if (currentZoom > 50) {
+                currentZoom -= 10;
+                updateZoom();
+            }
+        });
+
+        downloadBtn.addEventListener('click', async () => {
+            if (currentJobId) {
+                try {
+                    const response = await fetch(`/download/${currentJobId}`);
+                    if (!response.ok) {
+                        throw new Error('Download failed');
+                    }
+                    const blob = await response.blob();
+                    const filename = response.headers.get('Content-Disposition')?.match(/filename="?([^";\n]+)"?/)?.[1] || 'transcript.md';
+
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                } catch (error) {
+                    alert('Download failed: ' + error.message);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

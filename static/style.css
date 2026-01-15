@@ -1,0 +1,560 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Tahoma, "Segoe UI", Geneva, sans-serif;
+    background: #6375d6;
+    color: #000;
+    line-height: 1.4;
+    min-height: 100vh;
+    font-size: 11px;
+    padding: 20px;
+}
+
+.container {
+    max-width: 850px;
+    margin: 0 auto;
+    background: #f0f0f0;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+/* Title bar - Word 2003 blue gradient */
+header {
+    background: linear-gradient(to bottom, #0a246a 0%, #0a246a 3%, #a6caf0 4%, #a6caf0 5%, #6f9cd1 6%, #3a6eb5 50%, #3a6eb5 95%, #2a4f91 100%);
+    padding: 12px 16px;
+    border-bottom: 1px solid #0a246a;
+}
+
+header h1 {
+    font-size: 26px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    letter-spacing: 0.5px;
+}
+
+header p {
+    display: none;
+}
+
+/* Menu bar */
+.input-group::before {
+    content: "File   Edit   View   Insert   Format   Tools   Help";
+    display: block;
+    width: 100%;
+    padding: 4px 8px;
+    background: #e8e8e8;
+    border-bottom: 1px solid #aaa;
+    color: #000;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+}
+
+/* Toolbar area */
+.input-group {
+    background: linear-gradient(to bottom, #f6f8fb 0%, #e3e9f3 50%, #d4dce8 51%, #d8e0ec 100%);
+    padding: 0 0 6px 0;
+    border-bottom: 1px solid #8ba0bc;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+#url-input {
+    flex: 1;
+    margin: 0 8px;
+    padding: 4px 6px;
+    font-size: 11px;
+    font-family: Tahoma, sans-serif;
+    border: 1px solid #7f9db9;
+    border-radius: 3px;
+    background: #fff;
+    outline: none;
+    min-width: 200px;
+}
+
+#url-input:focus {
+    border-color: #3d7bad;
+    box-shadow: 0 0 2px rgba(61,123,173,0.5);
+}
+
+#submit-btn {
+    margin-right: 8px;
+    padding: 4px 16px;
+    font-size: 11px;
+    font-family: Tahoma, sans-serif;
+    background: linear-gradient(to bottom, #fff 0%, #e3e9f3 45%, #c9d4e2 50%, #d8e0ec 100%);
+    color: #000;
+    border: 1px solid #7f9db9;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#submit-btn:hover:not(:disabled) {
+    background: linear-gradient(to bottom, #fff 0%, #e8f0fb 45%, #c4d5ea 50%, #d4e4f5 100%);
+    border-color: #3d7bad;
+}
+
+#submit-btn:active:not(:disabled) {
+    background: linear-gradient(to bottom, #c9d4e2 0%, #d8e0ec 100%);
+}
+
+#submit-btn:disabled {
+    color: #888;
+}
+
+/* Description tip */
+form::before {
+    content: "Tired of talks and podcasts being video-only? Mourning the transition to a post-literate society? Use this tool to take any YouTube link and convert it to a readable grammatical transcript, with chapters and top takeaways.";
+    display: block;
+    background: linear-gradient(to bottom, #ffffe1 0%, #fff8c5 100%);
+    border: 1px solid #cec365;
+    border-radius: 3px;
+    padding: 8px 10px;
+    margin: 8px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.disclaimer {
+    margin: 0 8px 8px 8px;
+    padding: 0;
+    font-size: 10px;
+    color: #666;
+    font-style: italic;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#progress-container {
+    background: #fff;
+    margin: 8px;
+    padding: 20px;
+    border: 1px solid #7f9db9;
+    border-radius: 3px;
+    text-align: center;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 18px;
+    background: #fff;
+    border: 1px solid #7f9db9;
+    border-radius: 2px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(to bottom, #6fa0d2 0%, #3a7ab8 50%, #2e68a3 100%);
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+#progress-text {
+    color: #333;
+    font-size: 11px;
+}
+
+#result-container {
+    background: #808080;
+    margin: 8px;
+    border: 1px solid #7f9db9;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background: linear-gradient(to bottom, #f6f8fb 0%, #e3e9f3 100%);
+    border-bottom: 1px solid #bbc9da;
+}
+
+.result-header h2 {
+    font-size: 11px;
+    font-weight: bold;
+    color: #000;
+    flex: 1;
+    margin-right: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.download-btn {
+    padding: 4px 14px;
+    font-size: 11px;
+    font-family: Tahoma, sans-serif;
+    background: linear-gradient(to bottom, #fff 0%, #e3e9f3 45%, #c9d4e2 50%, #d8e0ec 100%);
+    color: #000;
+    border: 1px solid #7f9db9;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.download-btn:hover {
+    background: linear-gradient(to bottom, #e1ffe1 0%, #c5e8c5 45%, #a0d4a0 50%, #b5e0b5 100%);
+    border-color: #5a9a5a;
+}
+
+/* Viewer toolbar with font and zoom */
+.viewer-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: linear-gradient(to bottom, #f6f8fb 0%, #e3e9f3 50%, #d4dce8 51%, #d8e0ec 100%);
+    border-bottom: 1px solid #8ba0bc;
+    font-size: 11px;
+}
+
+.viewer-toolbar label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.viewer-toolbar select {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    padding: 3px 6px;
+    border: 1px solid #7f9db9;
+    border-radius: 3px;
+    background: #fff;
+}
+
+.zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.zoom-btn {
+    width: 24px;
+    height: 22px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: Tahoma, sans-serif;
+    background: linear-gradient(to bottom, #fff 0%, #e3e9f3 45%, #c9d4e2 50%, #d8e0ec 100%);
+    color: #000;
+    border: 1px solid #7f9db9;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.zoom-btn:hover {
+    background: linear-gradient(to bottom, #fff 0%, #e8f0fb 45%, #c4d5ea 50%, #d4e4f5 100%);
+    border-color: #3d7bad;
+}
+
+#zoom-level {
+    min-width: 40px;
+    text-align: center;
+}
+
+/* Formatting toolbar */
+.toolbar-formatting {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px 6px;
+    background: linear-gradient(to bottom, #f6f8fb 0%, #e3e9f3 50%, #d4dce8 51%, #d8e0ec 100%);
+    border-bottom: 1px solid #8ba0bc;
+}
+
+.toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 23px;
+    height: 22px;
+    font-family: "Times New Roman", serif;
+    font-size: 13px;
+    font-weight: bold;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.toolbar-btn:hover {
+    background: linear-gradient(to bottom, #fff 0%, #e3e9f3 100%);
+    border-color: #7f9db9;
+}
+
+.toolbar-btn.italic {
+    font-style: italic;
+}
+
+.toolbar-btn.underline {
+    text-decoration: underline;
+}
+
+.toolbar-divider {
+    width: 1px;
+    height: 18px;
+    background: #8ba0bc;
+    margin: 0 4px;
+}
+
+.font-select, .size-select {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    padding: 2px 4px;
+    border: 1px solid #7f9db9;
+    border-radius: 3px;
+    background: #fff;
+}
+
+.font-select {
+    width: 130px;
+}
+
+.size-select {
+    width: 45px;
+}
+
+/* Horizontal ruler */
+.ruler {
+    background: #fff;
+    border-bottom: 1px solid #8ba0bc;
+    padding: 0 0 0 30px;
+    height: 18px;
+    position: relative;
+}
+
+.ruler::before {
+    content: "";
+    position: absolute;
+    left: 30px;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: linear-gradient(to right,
+        transparent 0px, transparent 79px, #999 79px, #999 80px,
+        transparent 80px, transparent 159px, #999 159px, #999 160px,
+        transparent 160px, transparent 239px, #999 239px, #999 240px,
+        transparent 240px, transparent 319px, #999 319px, #999 320px,
+        transparent 320px, transparent 399px, #999 399px, #999 400px,
+        transparent 400px, transparent 479px, #999 479px, #999 480px,
+        transparent 480px
+    );
+}
+
+.ruler-marks {
+    display: flex;
+    justify-content: space-around;
+    padding: 0 10px;
+    font-size: 9px;
+    color: #666;
+    position: relative;
+    z-index: 1;
+}
+
+.ruler-marks span {
+    width: 80px;
+    text-align: center;
+}
+
+/* Document area with vertical ruler */
+.document-area {
+    display: flex;
+    background: #808080;
+    padding: 10px;
+}
+
+.vertical-ruler {
+    width: 20px;
+    background: #fff;
+    border-right: 1px solid #999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 9px;
+    color: #666;
+    flex-shrink: 0;
+}
+
+.vertical-ruler span {
+    height: 50px;
+    display: flex;
+    align-items: flex-start;
+}
+
+#markdown-viewer {
+    flex: 1;
+    padding: 30px 40px;
+    max-height: 60vh;
+    overflow-y: auto;
+    background: #fff;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 12pt;
+    line-height: 1.15;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+#markdown-viewer h1 {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 18pt;
+    font-weight: bold;
+    margin-bottom: 12px;
+    color: #000;
+}
+
+#markdown-viewer h2 {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 14pt;
+    font-weight: bold;
+    margin-top: 18px;
+    margin-bottom: 10px;
+    color: #000;
+}
+
+#markdown-viewer h3 {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 12pt;
+    font-weight: bold;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    color: #1f497d;
+}
+
+#markdown-viewer p {
+    margin-bottom: 14px;
+    color: #000;
+    line-height: 1.15;
+}
+
+#markdown-viewer ul, #markdown-viewer ol {
+    margin-bottom: 12px;
+    padding-left: 30px;
+}
+
+#markdown-viewer li {
+    margin-bottom: 4px;
+}
+
+#markdown-viewer hr {
+    border: none;
+    border-top: 1px solid #999;
+    margin: 18px 0;
+}
+
+#markdown-viewer a {
+    color: #0563c1;
+    text-decoration: underline;
+}
+
+#markdown-viewer img {
+    max-width: 300px;
+    height: auto;
+    display: block;
+    margin: 0 auto 16px auto;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#error-container {
+    background: #fff;
+    margin: 8px;
+    border: 1px solid #c00;
+    border-radius: 3px;
+    padding: 12px;
+}
+
+#error-text {
+    color: #c00;
+    font-size: 11px;
+}
+
+footer {
+    background: linear-gradient(to bottom, #e3e9f3 0%, #d4dce8 100%);
+    text-align: center;
+    padding: 8px;
+    border-top: 1px solid #bbc9da;
+}
+
+footer p {
+    font-size: 10px;
+    font-style: italic;
+    color: #444;
+}
+
+footer a {
+    color: #0563c1;
+    text-decoration: underline;
+}
+
+/* Word 2003 style scrollbar */
+#markdown-viewer::-webkit-scrollbar {
+    width: 17px;
+}
+
+#markdown-viewer::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-left: 1px solid #ddd;
+}
+
+#markdown-viewer::-webkit-scrollbar-thumb {
+    background: linear-gradient(to right, #e8e8e8 0%, #d0d0d0 50%, #e8e8e8 100%);
+    border: 1px solid #999;
+    border-radius: 2px;
+}
+
+#markdown-viewer::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to right, #d8e8f8 0%, #b8c8e0 50%, #d8e8f8 100%);
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #url-input {
+        margin: 0 8px;
+    }
+
+    #submit-btn {
+        margin: 0 8px;
+        width: calc(100% - 16px);
+    }
+
+    .result-header {
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-start;
+    }
+
+    .result-header h2 {
+        white-space: normal;
+    }
+
+    .download-btn {
+        width: 100%;
+    }
+}
