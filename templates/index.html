@@ -101,6 +101,8 @@
         const errorText = document.getElementById('error-text');
 
         let currentJobId = null;
+        let processingStartTime = null;
+        let timerInterval = null;
 
         // Check for URL parameter and auto-submit
         const params = new URLSearchParams(window.location.search);
@@ -124,6 +126,11 @@
             submitBtn.textContent = 'Textifying...';
             progressFill.style.width = '10%';
 
+            // Start timer
+            processingStartTime = Date.now();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+
             try {
                 // Start transcription
                 const response = await fetch('/transcribe', {
@@ -145,6 +152,41 @@
             }
         });
 
+        let currentProgress = 10;
+
+        function formatTime(seconds) {
+            if (seconds < 60) return `${seconds}s`;
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
+        }
+
+        function getEstimatedRemaining() {
+            if (!processingStartTime || currentProgress <= 10) return null;
+            const elapsed = (Date.now() - processingStartTime) / 1000;
+            const estimatedTotal = (elapsed / currentProgress) * 100;
+            const remaining = Math.max(0, Math.ceil(estimatedTotal - elapsed));
+            return remaining;
+        }
+
+        function updateTimer() {
+            if (!processingStartTime) return;
+            const remaining = getEstimatedRemaining();
+            if (remaining !== null && remaining > 0) {
+                const baseText = progressText.textContent.replace(/ \(~[^)]+\)$/, '');
+                progressText.textContent = `${baseText} (~${formatTime(remaining)} left)`;
+            }
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            processingStartTime = null;
+            currentProgress = 10;
+        }
+
         async function pollStatus() {
             try {
                 const response = await fetch(`/status/${currentJobId}`);
@@ -154,17 +196,25 @@
                     throw new Error(data.error);
                 }
 
-                progressText.textContent = data.progress;
-
                 // Update progress bar based on step
                 const steps = {
                     'Starting...': 10,
                     'Getting video info...': 20,
                     'Extracting transcript...': 40,
                     'Cleaning transcript with Gemini...': 60,
-                    'Generating takeaways...': 80
+                    'Generating takeaways...': 80,
+                    'Loaded from cache': 100
                 };
-                progressFill.style.width = (steps[data.progress] || 50) + '%';
+                currentProgress = steps[data.progress] || 50;
+                progressFill.style.width = currentProgress + '%';
+
+                // Show progress with time estimate
+                const remaining = getEstimatedRemaining();
+                if (remaining !== null && remaining > 0 && currentProgress < 100) {
+                    progressText.textContent = `${data.progress} (~${formatTime(remaining)} left)`;
+                } else {
+                    progressText.textContent = data.progress;
+                }
 
                 if (data.status === 'completed') {
                     progressFill.style.width = '100%';
@@ -181,6 +231,7 @@
         }
 
         function showResult(result) {
+            stopTimer();
             progressContainer.classList.add('hidden');
             resultContainer.classList.remove('hidden');
 
@@ -193,6 +244,7 @@
         }
 
         function showError(message) {
+            stopTimer();
             progressContainer.classList.add('hidden');
             errorContainer.classList.remove('hidden');
             errorText.textContent = `Error: ${message}`;

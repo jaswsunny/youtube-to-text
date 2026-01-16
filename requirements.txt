@@ -2,3 +2,6 @@ flask>=3.0.0
 google-genai>=1.0.0
 gunicorn>=21.0.0
 youtube-transcript-api>=0.6.0
+yt-dlp>=2024.0.0
+weasyprint>=60.0
+markdown>=3.0
