@@ -71,7 +71,6 @@ Tired of talks and podcasts being video-only? This tool takes any YouTube link a
 
 ## Notes
 
-- Works best with podcasts and talks under 1 hour
 - Requires videos to have captions (auto-generated or manual)
 - Transcripts are cached to disk (`transcript_cache.json`) and persist across restarts
 
