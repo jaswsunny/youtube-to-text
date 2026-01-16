@@ -382,8 +382,13 @@ form::before {
 }
 
 #zoom-level {
-    min-width: 40px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-family: Tahoma, sans-serif;
+    background: #fff;
+    min-width: 45px;
     text-align: center;
+    border: 1px solid #7f9db9;
 }
 
 /* Formatting toolbar */
